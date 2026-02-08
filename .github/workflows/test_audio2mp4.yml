@@ -26,12 +26,17 @@ jobs:
         with:
           python-version: '3.12'
 
-      # 3. FFmpegセットアップ (全OS対応のアクションを使用)
-      - name: Setup FFmpeg
-        uses: FedericoCarboni/setup-ffmpeg@v3
+      # 3. FFmpegセットアップ (全OS対応)
+      - name: Setup FFmpeg (Windows/Linux)
+        if: runner.os != 'macOS'
+        uses: federico-busato/setup-ffmpeg@v3
 
+      - name: Setup FFmpeg (macOS - arm64対応)
+        if: runner.os == 'macOS'
+        run: brew install ffmpeg
+        
       # 4. テスト用素材の生成 (audio.mp3 / cover.jpg)
-      # OSによってシェルの挙動が違うため、bashで統一して生成するのが安全です
+      # OSによってシェルの挙動が違うため、bashで統一して生成するのが安全
       - name: Generate dummy assets
         shell: bash
         run: |
