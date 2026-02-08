@@ -28,7 +28,7 @@ jobs:
 
       # 3. FFmpegセットアップ (全OS対応のアクションを使用)
       - name: Setup FFmpeg
-        uses: federico-busato/setup-ffmpeg@v3
+        uses: federicobusato/setup-ffmpeg@v3
 
       # 4. テスト用素材の生成 (audio.mp3 / cover.jpg)
       # OSによってシェルの挙動が違うため、bashで統一して生成するのが安全です
