@@ -20,7 +20,7 @@ jobs:
       # 1. バージョンを計算してタグを打つ
       - name: Bump version and push tag
         id: tag_version
-        uses: mathieudutour/github-tag-action@v6.2
+        uses: mathieudutour/github-tag-action@c61b57d3b42bb32c5e0e9628f1db209ed3c5a2e6 # v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           default_bump: patch # 指定がない場合は末尾を上げる (v1.0.0 -> v1.0.1)
