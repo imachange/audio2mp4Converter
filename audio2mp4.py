@@ -1,6 +1,13 @@
 import subprocess
 import time
 from pathlib import Path
+import sys
+import io
+
+# Windows環境でUnicode文字(絵文字)を正しく出力するための設定
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 # ■ 設定エリア --------------------------
 # 出力するファイル名
