@@ -12,9 +12,6 @@ concurrency:
 permissions:
   contents: write # タグを打ったりリリースを作成するために必要
 
-concurrency:
-  group: release-${{ github.ref }}
-  cancel-in-progress: false
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
