@@ -1,0 +1,40 @@
+name: Auto Tag & Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write # タグを打ったりリリースを作成するために必要
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 過去のタグ履歴を取得するために必須
+
+      # 1. バージョンを計算してタグを打つ
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_bump: patch # 指定がない場合は末尾を上げる (v1.0.0 -> v1.0.1)
+
+      # 2. 配布用Zipを作成する
+      - name: Create Zip archive
+        run: |
+          zip Audio2MP4.zip audio2mp4.py audio2mp4.bat README.md
+
+      # 3. リリースを作成してファイルをアップロードする
+      - name: Create a GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }} # コミットログを本文にする
+          files: Audio2MP4.zip
