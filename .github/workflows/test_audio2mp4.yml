@@ -1,0 +1,76 @@
+name: Test
+
+on:
+  push:
+    branches: [ "main"]
+  pull_request:
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3つのOSすべてでテストを実行
+        os: [windows-latest, macos-latest, ubuntu-latest]
+
+    steps:
+      # 1. チェックアウト
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Pythonセットアップ
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # 3. FFmpegセットアップ (全OS対応のアクションを使用)
+      - name: Setup FFmpeg
+        uses: federico-busato/setup-ffmpeg@v3
+
+      # 4. テスト用素材の生成 (audio.mp3 / cover.jpg)
+      # OSによってシェルの挙動が違うため、bashで統一して生成するのが安全です
+      - name: Generate dummy assets
+        shell: bash
+        run: |
+          ffmpeg -f lavfi -i "sine=frequency=1000:duration=1" -c:a libmp3lame audio.mp3
+          ffmpeg -f lavfi -i "color=c=blue:s=640x480:d=1" -frames:v 1 cover.jpg
+
+      # 5. [Windowsのみ] バッチファイルのテスト
+      # バッチファイル内の `pause` と、Python内の `input()` 両方を回避するために
+      # echo. をパイプしてEnter入力をシミュレートします
+      - name: Run Batch file (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          echo. | call audio2mp4.bat
+
+      # 6. [Mac / Linuxのみ] Pythonスクリプトの直接テスト
+      # Python内の `input()` を回避するために echo "" をパイプします
+      - name: Run Python script (Mac/Linux)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          echo "" | python audio2mp4.py
+
+      # 7. 生成結果の検証
+      - name: Verify output exists
+        shell: bash
+        run: |
+          if [ -f "movie.mp4" ]; then
+            echo "✅ SUCCESS: movie.mp4 created on ${{ matrix.os }}"
+            exit 0
+          else
+            echo "❌ ERROR: movie.mp4 not found on ${{ matrix.os }}"
+            exit 1
+          fi
+
+      # (任意) 生成された動画を保存
+      - name: Upload artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: movie-${{ matrix.os }}
+          path: movie.mp4
