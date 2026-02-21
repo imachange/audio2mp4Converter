@@ -4,8 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>音声+静止画 → MP4変換ツール</title>
-  <!-- SharedArrayBuffer を有効化するための Service Worker（最初に読み込む） -->
-  <script src="coi-serviceworker.js"></script>
+  <script>
+  // Service Worker を登録して SharedArrayBuffer を有効化
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('coi-serviceworker.js')
+        .then(registration => {
+          console.log('✅ COI Service Worker registered:', registration.scope);
+        })
+        .catch(error => {
+          console.error('❌ COI Service Worker registration failed:', error);
+        });
+    });
+  }
+  </script>
   <!-- Sakura CSS（シンプルなスタイル） -->
   <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" />
   <style>
