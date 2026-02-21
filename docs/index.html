@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>音声+静止画 → MP4変換ツール</title>
+  <!-- SharedArrayBuffer を有効化するための Service Worker（最初に読み込む） -->
+  <script src="coi-serviceworker.js"></script>
+  <!-- Sakura CSS（シンプルなスタイル） -->
+  <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" />
+  <style>
+    /* プログレスバー */
+    progress {
+      width: 100%;
+      height: 1.2em;
+    }
+    /* プレビュー画像 */
+    #image-preview {
+      max-width: 100%;
+      max-height: 300px;
+      display: block;
+      margin: 0.5em 0;
+    }
+    /* ログ表示エリア */
+    #log-area {
+      background: #f4f4f4;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 0.5em;
+      height: 150px;
+      overflow-y: auto;
+      font-size: 0.85em;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+    /* ダウンロードセクション（生成完了後に表示） */
+    #download-section {
+      display: none;
+    }
+    /* ステータスメッセージ */
+    .status-saved   { color: #2a7; font-weight: bold; }
+    .status-unsaved { color: #a27; }
+    /* エラーメッセージ */
+    .error-msg { color: #c00; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎵🖼️ → 🎥 音声+静止画 → MP4変換ツール</h1>
+    <p>
+      ブラウザ上で音声ファイルと静止画を組み合わせてMP4動画を生成します。<br />
+      処理はすべてブラウザ内で完結し、サーバーへのアップロードは行いません。
+    </p>
+  </header>
+
+  <hr />
+
+  <!-- ① 静止画管理セクション -->
+  <section id="image-section">
+    <h2>① 静止画の管理</h2>
+    <p id="image-status" class="status-unsaved">📂 画像未保存</p>
+
+    <label for="image-input">静止画を選択（jpg / png / gif / webp など）：</label><br />
+    <input type="file" id="image-input" accept="image/*" /><br /><br />
+
+    <!-- 選択済み画像のプレビュー -->
+    <img id="image-preview" src="" alt="プレビュー" style="display:none;" />
+
+    <!-- 削除ボタン（保存済みのときのみ表示） -->
+    <button id="delete-image-btn" style="display:none;">🗑️ 画像を削除</button>
+  </section>
+
+  <hr />
+
+  <!-- ② 動画生成セクション -->
+  <section id="convert-section">
+    <h2>② 動画を生成</h2>
+
+    <label for="audio-input">音声ファイルを選択（mp3 / wav / m4a / aac / flac など）：</label><br />
+    <input type="file" id="audio-input" accept="audio/*" /><br />
+    <p id="audio-filename" style="font-style:italic; color:#555;">ファイル未選択</p>
+
+    <button id="convert-btn" disabled>🎥 動画を生成</button>
+    <span id="convert-error" class="error-msg"></span>
+
+    <br /><br />
+    <label>進捗：</label>
+    <progress id="progress-bar" value="0" max="100"></progress>
+    <span id="progress-text">0%</span>
+
+    <br /><br />
+    <label>処理ログ：</label>
+    <div id="log-area"></div>
+  </section>
+
+  <hr />
+
+  <!-- ③ ダウンロードセクション（生成完了後に表示） -->
+  <section id="download-section">
+    <h2>③ ダウンロード</h2>
+    <p>✅ 動画の生成が完了しました！</p>
+    <a id="download-link" href="#" download="output.mp4">
+      ⬇️ output.mp4 をダウンロード
+    </a>
+  </section>
+
+  <!-- アプリケーションロジック -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
