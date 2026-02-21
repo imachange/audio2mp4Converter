@@ -12,7 +12,7 @@
 // ffmpeg.wasm のインポート（CDN）
 // -----------------------------------------------------------------------
 import { FFmpeg } from 'https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/esm/index.js';
-import { fetchFile, toBlobURL } from 'https://unpkg.com/@ffmpeg/util@0.12.1/dist/esm/index.js';
+import { fetchFile } from 'https://unpkg.com/@ffmpeg/util@0.12.1/dist/esm/index.js';
 
 // -----------------------------------------------------------------------
 // DOM 要素の取得
@@ -270,12 +270,13 @@ async function getFFmpeg() {
     }
   });
 
-  // ffmpeg.wasm コアをローカルベンダーファイルから読み込む（同一オリジン）
+  // ffmpeg.wasm コアをベンダーファイルから読み込む（同一オリジン・CORS 問題回避）
   appendLog('📦 ffmpeg コアを読み込み中...');
+  const baseURL = new URL('./vendor', import.meta.url).href;
   await ffmpeg.load({
-    coreURL:   await toBlobURL('./vendor/ffmpeg-core.js',   'text/javascript'),
-    wasmURL:   await toBlobURL('./vendor/ffmpeg-core.wasm', 'application/wasm'),
-    workerURL: await toBlobURL('./vendor/worker.js',        'text/javascript'),
+    classWorkerURL: `${baseURL}/worker.js`,
+    coreURL:        `${baseURL}/ffmpeg-core.js`,
+    wasmURL:        `${baseURL}/ffmpeg-core.wasm`,
   });
   appendLog('✅ ffmpeg の読み込み完了。');
 
