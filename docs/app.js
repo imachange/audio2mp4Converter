@@ -241,7 +241,11 @@ convertBtn.addEventListener('click', async () => {
 // ffmpeg.wasm を使った変換処理
 // -----------------------------------------------------------------------
 
-/** ffmpeg インスタンス（初回使用時に生成） */
+/** マイクロ秒から秒への変換係数 */
+const MICROSECONDS_TO_SECONDS = 1_000_000;
+
+/** タイムスタンプ文字列の長さ（'YYYY-MM-DDTHH-MM-SS' = 19文字） */
+const TIMESTAMP_LENGTH = 19;
 let ffmpeg = null;
 
 /**
@@ -262,7 +266,7 @@ async function getFFmpeg() {
   ffmpeg.on('progress', ({ progress, time }) => {
     updateProgress(Math.min(progress, 1));
     if (time !== undefined) {
-      appendLog(`⏱️ 処理時間: ${(time / 1_000_000).toFixed(1)}秒`);
+      appendLog(`⏱️ 処理時間: ${(time / MICROSECONDS_TO_SECONDS).toFixed(1)}秒`);
     }
   });
 
@@ -323,7 +327,7 @@ async function runFFmpeg(imageFile, audioFile) {
   const url = URL.createObjectURL(blob);
 
   // タイムスタンプ付きファイル名
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, TIMESTAMP_LENGTH);
   const filename = `audio-video-${timestamp}.mp4`;
 
   downloadLink.href = url;
