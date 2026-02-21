@@ -270,12 +270,12 @@ async function getFFmpeg() {
     }
   });
 
-  // ffmpeg.wasm コアを CDN から読み込む（toBlobURL で CORS 回避）
+  // ffmpeg.wasm コアをローカルベンダーファイルから読み込む（同一オリジン）
   appendLog('📦 ffmpeg コアを読み込み中...');
-  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
   await ffmpeg.load({
-    coreURL:   await toBlobURL(`${baseURL}/ffmpeg-core.js`,   'text/javascript'),
-    wasmURL:   await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+    coreURL:   await toBlobURL('./vendor/ffmpeg-core.js',   'text/javascript'),
+    wasmURL:   await toBlobURL('./vendor/ffmpeg-core.wasm', 'application/wasm'),
+    workerURL: await toBlobURL('./vendor/worker.js',        'text/javascript'),
   });
   appendLog('✅ ffmpeg の読み込み完了。');
 
